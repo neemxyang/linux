@@ -1,9 +1,16 @@
 #!/bin/bash
 #配置 yum源
-rm -rf /var/svn
+sed -i /gpg/s/1/0/ /etc/yum.conf &> /dev/null
+yum-config-manager --add http://192.168.4.254/rhel7 &> /dev/null
+yum clean all &>/dev/null && yum makecache &>/dev/null && yum repolist  &>/dev/null
 #安装subversion
+rpm -qa | grep subversion &> /dev/null
+if [ $? -eq 0 ];then
+rm -rf /var/svn
 yum -y reinstall subversion
+else
 yum -y install subversion
+fi
 #创建目录
 mkdir /var/svn
 #创建库
@@ -19,7 +26,7 @@ sed -i -e '$a tom = 123456 \nharry = 123456' /var/svn/project/conf/passwd
 sed -i -e '$a [/] \ntom =rw \nharry = r \n*=r' /var/svn/project/conf/authz
 #启动服务
 svnserve -d -r /var/svn/project/
-ss -nultp | grep svnserve
+ss -nultp | grep svnserve &> /dev/null
 
 #还原1 revert 单文件本地修改从服务器上下载回来
 
